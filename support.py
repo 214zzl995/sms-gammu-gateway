@@ -26,40 +26,40 @@ def init_state_machine(pin, filename='gammu.config'):
     return sm
 
 
-def retrieveAllSms(machine):
+def retrieve_all_sms(machine):
     status = machine.GetSMSStatus()
-    allMultiPartSmsCount = status['SIMUsed'] + status['PhoneUsed'] + status['TemplatesUsed']
+    all_multi_part_sms_count = status['SIMUsed'] + status['PhoneUsed'] + status['TemplatesUsed']
 
-    allMultiPartSms = []
+    all_multi_part_sms = []
     start = True
 
-    while len(allMultiPartSms) < allMultiPartSmsCount:
+    while len(all_multi_part_sms) < all_multi_part_sms_count:
         if start:
-            currentMultiPartSms = machine.GetNextSMS(Start=True, Folder=0)
+            current_multi_part_sms = machine.GetNextSMS(Start=True, Folder=0)
             start = False
         else:
-            currentMultiPartSms = machine.GetNextSMS(Location=currentMultiPartSms[0]['Location'], Folder=0)
-        allMultiPartSms.append(currentMultiPartSms)
+            current_multi_part_sms = machine.GetNextSMS(Location=current_multi_part_sms[0]['Location'], Folder=0)
+        all_multi_part_sms.append(current_multi_part_sms)
 
-    allSms = gammu.LinkSMS(allMultiPartSms)
+    all_sms = gammu.LinkSMS(all_multi_part_sms)
 
     results = []
-    for sms in allSms:
-        smsPart = sms[0]
+    for sms in all_sms:
+        sms_part = sms[0]
 
         result = {
-            "Date": str(smsPart['DateTime']),
-            "Number": smsPart['Number'],
-            "State": smsPart['State'],
+            "Date": str(sms_part['DateTime']),
+            "Number": sms_part['Number'],
+            "State": sms_part['State'],
             "Locations": [smsPart['Location'] for smsPart in sms],
         }
 
-        decodedSms = gammu.DecodeSMS(sms)
-        if decodedSms is None:
-            result["Text"] = smsPart['Text']
+        decoded_sms = gammu.DecodeSMS(sms)
+        if decoded_sms is None:
+            result["Text"] = sms_part['Text']
         else:
             text = ""
-            for entry in decodedSms['Entries']:
+            for entry in decoded_sms['Entries']:
                 if entry['Buffer'] is not None:
                     text += entry['Buffer']
 
@@ -70,9 +70,9 @@ def retrieveAllSms(machine):
     return results
 
 
-def deleteSms(machine, sms):
+def delete_sms(machine, sms):
     list(map(lambda location: machine.DeleteSMS(Folder=0, Location=location), sms["Locations"]))
 
 
-def encodeSms(smsInfo):
+def encode_sms(smsInfo):
     return gammu.EncodeSMS(smsInfo)

@@ -4,7 +4,7 @@ from flask import Flask, request
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import reqparse, Api, Resource, abort
 
-from support import load_user_data, init_state_machine, retrieveAllSms, deleteSms, encodeSms
+from support import load_user_data, init_state_machine, retrieve_all_sms, delete_sms, encode_sms
 from gammu import GSMNetworks
 
 
@@ -36,16 +36,16 @@ class Sms(Resource):
 
     @auth.login_required
     def get(self):
-        allSms = retrieveAllSms(machine)
-        list(map(lambda sms: sms.pop("Locations"), allSms))
-        return allSms
+        all_sms = retrieve_all_sms(machine)
+        list(map(lambda sms: sms.pop("Locations"), all_sms))
+        return all_sms
 
     @auth.login_required
     def post(self):
         args = self.parser.parse_args()
         if args['text'] is None or args['number'] is None:
             abort(404, message="Parameters 'text' and 'number' are required.")
-        smsInfo = {
+        sms_info = {
             "Class": -1,
             "Unicode": args.get('unicode') if args.get('unicode') else False,
             "Entries": [
@@ -57,7 +57,7 @@ class Sms(Resource):
         }
         messages = []
         for number in args.get("number").split(','):
-            for message in encodeSms(smsInfo):
+            for message in encode_sms(sms_info):
                 message["SMSC"] = {'Number': args.get("smsc")} if args.get("smsc") else {'Location': 1}
                 message["Number"] = number
                 messages.append(message)
@@ -98,11 +98,11 @@ class GetSms(Resource):
 
     @auth.login_required
     def get(self):
-        allSms = retrieveAllSms(machine)
+        allSms = retrieve_all_sms(machine)
         sms = {"Date": "", "Number": "", "State": "", "Text": ""}
         if len(allSms) > 0:
             sms = allSms[0]
-            deleteSms(machine, sms)
+            delete_sms(machine, sms)
             sms.pop("Locations")
 
         return sms
@@ -114,20 +114,20 @@ class SmsById(Resource):
 
     @auth.login_required
     def get(self, id):
-        allSms = retrieveAllSms(machine)
+        allSms = retrieve_all_sms(machine)
         self.abort_if_id_doesnt_exist(id, allSms)
         sms = allSms[id]
         sms.pop("Locations")
         return sms
 
     def delete(self, id):
-        allSms = retrieveAllSms(machine)
+        allSms = retrieve_all_sms(machine)
         self.abort_if_id_doesnt_exist(id, allSms)
-        deleteSms(machine, allSms[id])
+        delete_sms(machine, allSms[id])
         return '', 204
 
-    def abort_if_id_doesnt_exist(self, id, allSms):
-        if id < 0 or id >= len(allSms):
+    def abort_if_id_doesnt_exist(self, id, all_sms):
+        if id < 0 or id >= len(all_sms):
             abort(404, message = "Sms with id '{}' not found".format(id))
 
 
