@@ -1,6 +1,6 @@
 FROM python:3-alpine AS base
 
-RUN echo 'http://mirrors.tuna.tsinghua.edu.cn/alpine/latest-stable/community' >> /etc/apk/repositories \
+RUN echo 'http://ftp.halifax.rwth-aachen.de/alpine/latest-stable/community' >> /etc/apk/repositories \
     && apk update \
     && apk add --no-cache pkgconfig gammu gammu-libs gammu-dev
 
