@@ -35,10 +35,10 @@ def retrieveAllSms(machine):
 
     while len(allMultiPartSms) < allMultiPartSmsCount:
         if start:
-            currentMultiPartSms = machine.GetNextSMS(Start = True, Folder = 0)
+            currentMultiPartSms = machine.GetNextSMS(Start=True, Folder=0)
             start = False
         else:
-            currentMultiPartSms = machine.GetNextSMS(Location = currentMultiPartSms[0]['Location'], Folder = 0)
+            currentMultiPartSms = machine.GetNextSMS(Location=currentMultiPartSms[0]['Location'], Folder=0)
         allMultiPartSms.append(currentMultiPartSms)
 
     allSms = gammu.LinkSMS(allMultiPartSms)
@@ -55,12 +55,12 @@ def retrieveAllSms(machine):
         }
 
         decodedSms = gammu.DecodeSMS(sms)
-        if decodedSms == None:
+        if decodedSms is None:
             result["Text"] = smsPart['Text']
         else:
             text = ""
             for entry in decodedSms['Entries']:
-                if entry['Buffer'] != None:
+                if entry['Buffer'] is not None:
                     text += entry['Buffer']
 
             result["Text"] = text
@@ -74,5 +74,5 @@ def deleteSms(machine, sms):
     list(map(lambda location: machine.DeleteSMS(Folder=0, Location=location), sms["Locations"]))
 
 
-def encodeSms(smsinfo):
-    return gammu.EncodeSMS(smsinfo)
+def encodeSms(smsInfo):
+    return gammu.EncodeSMS(smsInfo)

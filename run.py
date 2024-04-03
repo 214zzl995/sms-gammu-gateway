@@ -7,6 +7,7 @@ from flask_restful import reqparse, Api, Resource, abort
 from support import load_user_data, init_state_machine, retrieveAllSms, deleteSms, encodeSms
 from gammu import GSMNetworks
 
+
 pin = os.getenv('PIN', None)
 ssl = os.getenv('SSL', False)
 port = os.getenv('PORT', '5000')
@@ -44,7 +45,7 @@ class Sms(Resource):
         args = self.parser.parse_args()
         if args['text'] is None or args['number'] is None:
             abort(404, message="Parameters 'text' and 'number' are required.")
-        smsinfo = {
+        smsInfo = {
             "Class": -1,
             "Unicode": args.get('unicode') if args.get('unicode') else False,
             "Entries": [
@@ -56,7 +57,7 @@ class Sms(Resource):
         }
         messages = []
         for number in args.get("number").split(','):
-            for message in encodeSms(smsinfo):
+            for message in encodeSms(smsInfo):
                 message["SMSC"] = {'Number': args.get("smsc")} if args.get("smsc") else {'Location': 1}
                 message["Number"] = number
                 messages.append(message)
