@@ -13,6 +13,11 @@ def load_user_data(filename='./config/credentials.txt'):
 
 
 def init_state_machine(pin, filename='./config/gammu.config'):
+    # 读取gammu.config 打印配置
+    with open(filename, 'r') as file:
+        content = file.read()  # 读取文件内容
+        print(content)  # 打印文件内容
+
     sm = gammu.StateMachine()
     sm.ReadConfig(Filename=filename)
     sm.Init()
